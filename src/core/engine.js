@@ -23,9 +23,9 @@ class Engine {
                 nodeType: 'variable',
                 type: 'function',
                 value: () => {
-                    return '\n- Use C-style syntax\n' +
-                            '- Variable declaration and assignment is supported\n' + 
-                            '- Intelligent suggestions are provided. You can use tab to insert a suggestion.\n' + 
+                    return '\n- Commands use C-style syntax.\n' +
+                            '- Variable declaration and assignment is supported.\n' + 
+                            '- Intelligent live suggestions are provided. You can use tab to insert a suggestion.\n' + 
                             '- The following functions are available:\n' + 
                             '  - malloc(int)\n' + 
                             '  - free(int)\n' + 

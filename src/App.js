@@ -15,6 +15,13 @@ function App(props) {
         window.engine = new Engine();
         setUiState(window.engine.getState());
     }
+
+    if (commandHistory.length === 0) {
+        setCommandHistory([{
+            style: 'info',
+            text: '-> Type help() for usage.',
+        }]);
+    }
     
     let handleMouseMove = (event) => {
         if (!isDragActive) {
