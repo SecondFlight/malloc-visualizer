@@ -1,38 +1,202 @@
+html, body, #root {
+  height: 100%;
+  background-color: #222;
+  color: #fff8;
+}
+
+body {
+  padding-top: 10px;
+}
+
+/* https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting */
+html {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Opera and Firefox */
+  font-family: 'Roboto', sans-serif;
+  box-sizing: border-box;
+}
+
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  height: 100%;
 }
 
-.App-link {
-  color: #61dafb;
+.mainContent {
+  border-bottom: 3px solid #444;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.spacer {
+  background-color: #333;
+  cursor: ns-resize;
+}
+
+.command-area {
+  border-top: 3px solid #444;
+  font-family: 'Source Code Pro', monospace;
+  padding-right: 50px;
+  padding-left: 50px;
+  display: flex;
+  flex-direction: column;
+}
+
+.command-input-container {
+  display: flex;
+  flex-direction: row;
+  height: 50px;
+  line-height: 30px;
+  font-size: 30px;
+}
+
+.command-input {
+  flex: 1;
+  position: relative;
+  padding-left: 10px;
+}
+
+.command-input input {
+  height: 100%;
+  width: 100%;
+  font-size: inherit;
+  font-family: inherit;
+  color: transparent;
+  background-color: transparent;
+  caret-color: #FFF8;
+  border: 0;
+  outline: none;
+  margin-top: -11.5px; /* ok but why */
+}
+
+.command-input input::selection {
+  background: #06a8;
+}
+
+.command-input input, .command-input-text-render {
+  position: absolute;
+}
+
+.command-history-container {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding-right: 10px;
+  white-space: pre;
+}
+
+.command-history-item {
+  padding-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 32px;
+  border-top: 1px solid #FFF3;
+}
+
+.command-history-item:nth-child(1) {
+  border-top: none;
+}
+
+.command-history-item.error {
+  color: #F44747;
+}
+
+
+/* Syntax highlight restyling */
+
+.command-input .code-render pre {
+  position: absolute !important;
+}
+
+.code-render pre {
+  background-color: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.code-render pre, .code-render code {
+  font-family: 'Source Code Pro', monospace !important;
+  line-height: inherit !important;
+  overflow: inherit !important;
+}
+
+
+/* Generated webkit scrollbars. I tried and gave up on a custom scrollbar component for React. */
+
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+}
+::-webkit-scrollbar-thumb {
+  background: #fff3;
+  border: none;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+::-webkit-scrollbar-thumb:active {
+  background: #555;
+}
+::-webkit-scrollbar-track {
+  background: #fff1;
+  border: none;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+
+
+/* Memory area styling */
+
+.memory-container {
+  margin: 10px;
+}
+
+.cell-container {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  font-size: 15px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-left: 1px solid #ffffff08;
+  border-top: 1px solid #ffffff08;
+  border-bottom: 1px solid #ffffff08;
+  transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.cell-container:first-child {
+  border-radius: 5px 0 0 5px;
+  padding-left: 10px;
+}
+
+.cell-container:last-child {
+  margin-right: 20px;
+  border-radius: 0 5px 5px 0;
+  border-right: 1px solid #ffffff08;
+}
+
+.memory-block-container:last-child .cell-container:last-child {
+  margin-right: 0;
+}
+
+.cell-container.unallocated {
+  background-color: rgba(131, 131, 131, 0.205);
+}
+
+.cell-container.allocated {
+  background-color: #23c55c96;
+  border-color: #fff2;
+}
+
+.cell-container.reserved {
+  background-color: rgba(255, 255, 255, 0.253);
 }
