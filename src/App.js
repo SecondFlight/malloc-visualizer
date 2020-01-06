@@ -75,7 +75,7 @@ function App(props) {
                     }
                     
                     const zeroArgumentFunctions = ['help', 'reset', 'clearConsole', 'coalesce'];
-                    const oneArgumentFunctions = ['malloc', 'free', 'setMemorySize'];
+                    const oneArgumentFunctions = ['malloc', 'free', 'setMemorySize', 'sizeof'];
             
                     let identifiers = window.engine.getIdentifiers();
                     let functions = window.engine.getFunctions();
@@ -132,7 +132,7 @@ function App(props) {
                             }
                         %}
 
-                        double -> [0-9]:+ "." [^\']:* {%
+                        double -> [0-9]:+ "." [^']:* {%
                             function(data) {
                                 return {
                                     nodeType: 'double',
@@ -141,7 +141,7 @@ function App(props) {
                             }
                         %}
 
-                        string -> "\"" [^\"]:* "\"" {%
+                        string -> "\"" [^"]:* "\"" {%
                             function(data) {
                                 return {
                                     nodeType: 'string',
@@ -150,7 +150,7 @@ function App(props) {
                             }
                         %}
 
-                        char -> "'" [^\'] "'" {%
+                        char -> "'" [^'] "'" {%
                             function(data) {
                                 return {
                                     nodeType: 'char',
@@ -215,7 +215,7 @@ function App(props) {
                         single_declaration -> (type _ identifier) {%
                             function(data) {
                                 return {
-                                    nodeType: 'declaration',
+                                    nodeType: 'singleDeclaration',
                                     type: data[0][0],
                                     identifier: data[0][2]
                                 }
@@ -269,7 +269,7 @@ function App(props) {
                             }
                         %}
 
-                        operator -> (literal | identifier | functionCall | parenthesis) _ [\+\-\*\\\^] _ (literal | identifier | functionCall | parenthesis) {%
+                        operator -> (literal | identifier | functionCall | parenthesis) _ [+\-*\\] _ (literal | identifier | functionCall | parenthesis) {%
                             function(data) {
                                 return {
                                     nodeType: 'operator',
@@ -330,7 +330,7 @@ function App(props) {
                         {"name": "double$ebnf$1", "symbols": [/[0-9]/]},
                         {"name": "double$ebnf$1", "symbols": [/[0-9]/, "double$ebnf$1"], "postprocess": function arrconcat(d) {return [d[0]].concat(d[1]);}},
                         {"name": "double$ebnf$2", "symbols": []},
-                        {"name": "double$ebnf$2", "symbols": [/[^\']/, "double$ebnf$2"], "postprocess": function arrconcat(d) {return [d[0]].concat(d[1]);}},
+                        {"name": "double$ebnf$2", "symbols": [/[^']/, "double$ebnf$2"], "postprocess": function arrconcat(d) {return [d[0]].concat(d[1]);}},
                         {"name": "double", "symbols": ["double$ebnf$1", {"literal":".","pos":86}, "double$ebnf$2"], "postprocess": 
                             function(data) {
                                 return {
@@ -340,7 +340,7 @@ function App(props) {
                             }
                             },
                         {"name": "string$ebnf$1", "symbols": []},
-                        {"name": "string$ebnf$1", "symbols": [/[^\"]/, "string$ebnf$1"], "postprocess": function arrconcat(d) {return [d[0]].concat(d[1]);}},
+                        {"name": "string$ebnf$1", "symbols": [/[^"]/, "string$ebnf$1"], "postprocess": function arrconcat(d) {return [d[0]].concat(d[1]);}},
                         {"name": "string", "symbols": [{"literal":"\"","pos":97}, "string$ebnf$1", {"literal":"\"","pos":102}], "postprocess": 
                             function(data) {
                                 return {
@@ -349,7 +349,7 @@ function App(props) {
                                 }
                             }
                             },
-                        {"name": "char", "symbols": [{"literal":"'","pos":110}, /[^\']/, {"literal":"'","pos":114}], "postprocess": 
+                        {"name": "char", "symbols": [{"literal":"'","pos":110}, /[^']/, {"literal":"'","pos":114}], "postprocess": 
                             function(data) {
                                 return {
                                     nodeType: 'char',
@@ -421,7 +421,7 @@ function App(props) {
                         {"name": "single_declaration", "symbols": ["single_declaration$subexpression$1"], "postprocess": 
                             function(data) {
                                 return {
-                                    nodeType: 'declaration',
+                                    nodeType: 'singleDeclaration',
                                     type: data[0][0],
                                     identifier: data[0][2]
                                 }
@@ -496,7 +496,7 @@ function App(props) {
                         {"name": "operator$subexpression$2", "symbols": ["identifier"]},
                         {"name": "operator$subexpression$2", "symbols": ["functionCall"]},
                         {"name": "operator$subexpression$2", "symbols": ["parenthesis"]},
-                        {"name": "operator", "symbols": ["operator$subexpression$1", "_", /[\+\-\*\\\^]/, "_", "operator$subexpression$2"], "postprocess": 
+                        {"name": "operator", "symbols": ["operator$subexpression$1", "_", /[+\-*\\]/, "_", "operator$subexpression$2"], "postprocess": 
                             function(data) {
                                 return {
                                     nodeType: 'operator',

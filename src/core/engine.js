@@ -32,7 +32,8 @@ class Engine {
                             '  - coalesce()\n' + 
                             '  - reset()\n' + 
                             '  - clearConsole()\n' + 
-                            '  - setMemorySize(int)';
+                            '  - setMemorySize(int)\n' +
+                            '  - sizeof(any)';
                 }
             },
             reset: {
@@ -110,6 +111,59 @@ class Engine {
                     }
                 }
             },
+            sizeof: {
+                nodeType: 'variable',
+                type: 'function',
+                value: (argument) => {
+                    if (argument === undefined) {
+                        throw new Error('Syntax error ("sizeof()"):\n  Expected 1 argument, got 0.');
+                    }
+                    let type = argument.type;
+                    if (type === undefined) {
+                        throw new Error('This is a bug lol');
+                    }
+
+                    let val;
+                    console.log(type);
+                    switch(type) {
+                        case 'int':
+                            val = 1;
+                            break;
+                        case 'char':
+                            val = 1;
+                            break;
+                        case 'double':
+                            val = 2;
+                            break;
+                        default:
+                            val = -1;
+                            break;
+                    }
+
+                    return {
+                        nodeType: 'variable',
+                        actionHadSideEffect: false,
+                        type: 'string',
+                        value: val,
+                    }
+                }
+            },
+            int: {
+                nodeType: 'type',
+                type: 'int'
+            },
+            double: {
+                nodeType: 'type',
+                type: 'double'
+            },
+            string: {
+                nodeType: 'type',
+                type: 'string'
+            },
+            char: {
+                nodeType: 'type',
+                type: 'char'
+            }
         };
     }
 
@@ -286,6 +340,14 @@ class Engine {
     // and returns the result, along with
     // performing any side effects.
     evaluate(node) {
+        if (node === null || node === undefined) {
+            return {
+                nodeType: 'variable',
+                actionHadSideEffect: false,
+                value: undefined
+            };
+        }
+
         if (Array.isArray(node)) {
             if (node.length === 0) {
                 throw new Error('Parsing error: Command is incomplete.\n  Did you forget a \')\'?');
@@ -297,8 +359,17 @@ class Engine {
             case 'literal': {
                 return this.evaluate(node.literal);
             }
-            case 'number': {
-                return node.number;
+            case 'int': {
+                return node.int;
+            }
+            case 'char': {
+                return node.char;
+            }
+            case 'double': {
+                return node.double;
+            }
+            case 'string': {
+                return node.string;
             }
             case 'statement': {
                 return this.evaluate(node.statement);
@@ -308,9 +379,6 @@ class Engine {
                     throw new Error(`Reference error: '${node.identifier}' is not defined.`);
                 }
                 return this.variables[node.identifier];
-            }
-            case 'whiteSpace': {
-                return undefined;
             }
             case 'assignment': {
                 let identifier;
@@ -348,6 +416,9 @@ class Engine {
                 return func.value(arg !== undefined && arg.nodeType === 'variable' ? arg.value : arg);
             }
             case 'declaration': {
+                return this.evaluate(node.declaration);
+            }
+            case 'singleDeclaration': {
                 let type = this.evaluate(node.type);
                 let identifier = node.identifier.identifier;
                 if (this.variables[identifier] !== undefined) {
@@ -360,10 +431,27 @@ class Engine {
                 }
                 return node.identifier;
             }
+            case 'arrayDeclaration': {
+                throw new Error('Array logic is not supported yet.');
+            }
+            case 'cast': {
+                throw new Error('Casting and type checking is not supported yet.');
+            }
+            case 'parenthesis': {
+                return this.evaluate(node.statement);
+            }
+            case 'operator': {
+                throw new Error('Math is not supported yet.');
+            }
             case 'type': {
                 return node.type;
             }
-            default:
+            case 'arrayIndex': {
+                throw new Error('Array logic is not supported yet.');
+            }
+            default: {
+                throw new Error('AST evaluator: Node type was not recognized.\n  This is a bug.')
+            }
         }
     }
 }
