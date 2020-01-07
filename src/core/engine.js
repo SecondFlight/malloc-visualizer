@@ -244,7 +244,7 @@ class Engine {
         let startIndex;
 
         switch(this.variables.currentAllocationMethod.value) {
-            case('first fit'): {
+            case 'first fit': {
                 let i = 0;
                 while (i !== undefined) {
                     if (!this.state[i].isAllocated) {
@@ -259,7 +259,7 @@ class Engine {
                 }
                 break;
             }
-            case('best fit'): {
+            case 'best fit': {
                 let bestSize = this.state.length - 1; // accounts for reserved word
                 let bestStart = 0;
                 let i = 0;
@@ -276,7 +276,7 @@ class Engine {
                 }
                 break;
             }
-            case('worst fit'): {
+            case 'worst fit': {
                 let bestSize = 0;
                 let bestStart = 0;
                 let i = 0;
@@ -487,14 +487,42 @@ class Engine {
                     identifier = this.evaluate(node.left).identifier;
                 }
 
-                let value = this.evaluate(node.right);
+                let value;
+
+                if (node.right.nodeType === 'literal') {
+                    value = this.evaluate(node.right);
+
+                    let type = node.right.literal.nodeType;
+
+                    value = {
+                        nodeType: 'variable',
+                        type: type,
+                        value: value
+                    }
+                }
+                else if (value.nodeType === 'variable') {
+                    value = node.right;
+                }
+                else {
+                    value = this.evaluate(node.right);
+                }
 
                 if (value.nodeType === 'variable') {
-                    this.variables[identifier].type = value.type;
+                    if (this.variables[identifier].type !== value.type) {
+                        if (this.variables[identifier].type === 'int' && value.type === 'double') {
+                            this.variables[identifier].value = parseInt(value.value);
+                        }
+                        else if (this.variables[identifier].type === 'double' && value.type === 'int') {
+                            this.variables[identifier].value = value.value;
+                        }
+                        else {
+                            throw new Error(`Syntax error: Type mismatch between ${this.variables[identifier].type} and ${value.type}.`)
+                        }
+                    }
                     this.variables[identifier].value = value.value;
                 }
                 else {
-                    this.variables[identifier].type = 'int';
+                    this.variables[identifier].type = 'int';  // um,
                     this.variables[identifier].value = value;
                 }
 
@@ -590,16 +618,16 @@ class Engine {
                 let result;
 
                 switch(node.operator) {
-                    case('+'):
+                    case '+':
                         result = left + right;
                         break;
-                    case('-'):
+                    case '-':
                         result = left - right;
                         break;
-                    case('*'):
+                    case '*':
                         result = left * right;
                         break;
-                    case('/'):
+                    case '/':
                         result = left / right;
                         break;
                 }
