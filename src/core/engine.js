@@ -140,13 +140,13 @@ class Engine {
                     let val;
                     switch(type) {
                         case 'int':
-                            val = 1;
+                            val = 4;
                             break;
                         case 'char':
                             val = 1;
                             break;
                         case 'double':
-                            val = 2;
+                            val = 8;
                             break;
                         default:
                             val = -1;
@@ -396,7 +396,6 @@ class Engine {
     // Groups the state into blocks to help
     // with UI structuring
     getState() {
-        console.log(this.state);
         let state = {};
         state.blocks = [];
 
@@ -412,7 +411,7 @@ class Engine {
                 block.isAllocated = this.state[i].isAllocated;
             }
 
-            block.cells.push(this.state[i]);
+            block.cells.push({...this.state[i], index: i});
 
             createNewBlock = (i + 1 < this.state.length) && (this.state[i + 1].isReserved);
         }
@@ -554,13 +553,8 @@ class Engine {
                 throw new Error('Array logic is not supported yet.');
             }
             case 'cast': {
-                console.log(node);
-
                 let oldValue = this.evaluate(node.statement);
                 let oldType;
-                console.log(oldValue);
-
-                let hadSideEffect;
 
                 switch(oldValue.nodeType) {
                     case undefined:

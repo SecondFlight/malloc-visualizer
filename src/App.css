@@ -165,13 +165,16 @@ html {
   width: 25px;
   height: 25px;
   line-height: 25px;
-  font-size: 15px;
+  font-size: 20px;
+  text-align: center;
   margin-bottom: 10px;
   padding: 10px;
   border-left: 1px solid #ffffff08;
   border-top: 1px solid #ffffff08;
   border-bottom: 1px solid #ffffff08;
   transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+  font-family: 'Source Code Pro', monospace;
+  color: #FFF5;
 }
 
 .cell-container:first-child {
