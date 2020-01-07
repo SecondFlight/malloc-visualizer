@@ -6,7 +6,7 @@ import nearley from 'nearley';
 import Engine from './core/engine.js';
 
 function App(props) {
-    const [commandHeight, setCommandHeight] = useState(300);
+    const [commandHeight, setCommandHeight] = useState(500);
     const [isDragActive, setIsDragActive] = useState(false);
     const [commandHistory, setCommandHistory] = useState([]);
     const [uiState, setUiState] = useState([]);
@@ -74,8 +74,8 @@ function App(props) {
                         return text;
                     }
                     
-                    const zeroArgumentFunctions = ['help', 'reset', 'clearConsole', 'coalesce'];
-                    const oneArgumentFunctions = ['malloc', 'free', 'setMemorySize', 'sizeof'];
+                    const zeroArgumentFunctions = ['help', 'reset', 'clearConsole', 'coalesce', 'getAllocationMethod', 'freeAll'];
+                    const oneArgumentFunctions = ['malloc', 'free', 'setMemorySize', 'sizeof', 'setAllocationMethod'];
             
                     let identifiers = window.engine.getIdentifiers();
                     let functions = window.engine.getFunctions();

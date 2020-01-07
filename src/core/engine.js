@@ -1,8 +1,6 @@
 class Engine {
     constructor() {
-        console.log(window.devicePixelRatio)
-        console.log(document.querySelector('body').clientWidth)
-        this.memorySize = Math.floor(document.querySelector('body').clientWidth / 46) * 5;
+        this.memorySize = Math.floor(document.querySelector('body').clientWidth / 46) * 3;
         this.reset();
     }
 
@@ -16,7 +14,7 @@ class Engine {
         }
         this.state[0].isReserved = true;
 
-                // key: variable identifier
+        // key: variable identifier
         // value: {nodeType: 'variable', type: 'someType', value: someValue}
         this.variables = {
             help: {
@@ -29,11 +27,14 @@ class Engine {
                             '- The following functions are available:\n' + 
                             '  - malloc(int)\n' + 
                             '  - free(int)\n' + 
+                            '  - freeAll()\n' + 
                             '  - coalesce()\n' + 
-                            '  - reset()\n' + 
-                            '  - clearConsole()\n' + 
                             '  - setMemorySize(int)\n' +
-                            '  - sizeof(any)';
+                            '  - sizeof(any)\n' + 
+                            '  - setAllocationMethod("best fit" | "worst fit" | "first fit")\n' + 
+                            '  - getAllocationMethod()\n' + 
+                            '  - reset()\n' + 
+                            '  - clearConsole()';
                 }
             },
             reset: {
@@ -85,6 +86,25 @@ class Engine {
                     }
                 }
             },
+            freeAll: {
+                nodeType: 'variable',
+                type: 'function',
+                value: () => {
+                    let i = 0;
+                    while(i !== undefined) {
+                        if (this.state[i].isAllocated) {
+                            this.free(i + 1);
+                        }
+                        i = this.state[i].cellValue;
+                    }
+                    return {
+                        nodeType: 'variable',
+                        actionHadSideEffect: true,
+                        type: 'int',
+                        value: undefined,
+                    }
+                }
+            },
             setMemorySize: {
                 nodeType: 'variable',
                 type: 'function',
@@ -124,7 +144,6 @@ class Engine {
                     }
 
                     let val;
-                    console.log(type);
                     switch(type) {
                         case 'int':
                             val = 1;
@@ -147,6 +166,38 @@ class Engine {
                         value: val,
                     }
                 }
+            },
+            setAllocationMethod: {
+                nodeType: 'variable',
+                type: 'function',
+                value: (method) => {
+                    if (method === 'best fit' || method === 'worst fit' || method === 'first fit') {
+                        this.variables.currentAllocationMethod = {
+                            nodeType: 'variable',
+                            type: 'string',
+                            value: method
+                        }
+                        return {
+                            nodeType: 'variable',
+                            actionHadSideEffect: false
+                        };
+                    }
+                    else {
+                        throw new Error('Runtime exception in setAllocationMethod(): Method is invalid.\n  Valid methods are "best fit", "worst fit", and "first fit".');
+                    }
+                }
+            },
+            getAllocationMethod: {
+                nodeType: 'variable',
+                type: 'function',
+                value: () => {
+                    return this.variables.currentAllocationMethod;
+                }
+            },
+            currentAllocationMethod: {
+                nodeType: 'variable',
+                type: 'string',
+                value: 'first fit'
             },
             int: {
                 nodeType: 'type',
@@ -191,18 +242,59 @@ class Engine {
         }
 
         let startIndex;
-        let freeCells = 0;
-        for (let i = 0; i < this.state.length; i++) {
-            if (this.state[i].isAllocated || this.state[i].isReserved) {
-                freeCells = 0;
-            }
-            else {
-                freeCells++;
-                if (freeCells === size) {
-                    startIndex = i - freeCells;
-                    break;
+
+        switch(this.variables.currentAllocationMethod.value) {
+            case('first fit'): {
+                let i = 0;
+                while (i !== undefined) {
+                    if (!this.state[i].isAllocated) {
+                        let cellVal = (this.state[i].cellValue ? this.state[i].cellValue : this.state.length);
+                        let currentSize = cellVal - i - 1;
+                        if (currentSize >= size) {
+                            startIndex = i;
+                            break;
+                        }
+                    }
+                    i = this.state[i].cellValue;
                 }
+                break;
             }
+            case('best fit'): {
+                let bestSize = this.state.length - 1; // accounts for reserved word
+                let bestStart = 0;
+                let i = 0;
+                while (i !== undefined) {
+                    let cellVal = (this.state[i].cellValue ? this.state[i].cellValue : this.state.length);
+                    if (!this.state[i].isAllocated && cellVal - i - 1 < bestSize) {
+                        bestSize = cellVal - i - 1;
+                        bestStart = i;
+                    }
+                    i = this.state[i].cellValue;
+                }
+                if (size <= bestSize) {
+                    startIndex = bestStart;
+                }
+                break;
+            }
+            case('worst fit'): {
+                let bestSize = 0;
+                let bestStart = 0;
+                let i = 0;
+                while (i !== undefined) {
+                    let cellVal = (this.state[i].cellValue ? this.state[i].cellValue : this.state.length);
+                    if (!this.state[i].isAllocated && cellVal - i - 1 > bestSize) {
+                        bestSize = cellVal - i - 1;
+                        bestStart = i;
+                    }
+                    i = this.state[i].cellValue;
+                }
+                if (size <= bestSize) {
+                    startIndex = bestStart;
+                }
+                break;
+            }
+            default:
+                throw new Error('Runtime exception in malloc():\n  Allocation method is invalid.\n  Hint: Don\t set currentAllocationMethod directly; instead, use setAllocationMethod().')
         }
         
         if (startIndex === undefined) {
@@ -216,6 +308,9 @@ class Engine {
         this.state[startIndex].isReserved = true;
         let oldCellValue = this.state[startIndex].cellValue;
         this.state[startIndex].cellValue = startIndex + size + 1;
+        if (this.state[startIndex].cellValue >= this.state.length) {
+            this.state[startIndex].cellValue = undefined;
+        }
 
         if (this.state[startIndex + size + 1] !== undefined && !this.state[startIndex + size + 1].isReserved) {
             this.state[startIndex + size + 1].isReserved = true;
