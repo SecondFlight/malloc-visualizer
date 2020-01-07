@@ -131,9 +131,7 @@ function App(props) {
                         try {
                             let result = window.engine.evaluate(parser.results);
 
-                            if (result.actionHadSideEffect) {
-                                setUiState(window.engine.getState());
-                            }
+                            setUiState(window.engine.getState());
 
                             if (result !== undefined && result.toString() !== '') {
                                 if (result.nodeType === 'variable') {
@@ -163,6 +161,7 @@ function App(props) {
                             });
                         }
                         catch (ex) {
+                            // throw ex;
                             historyToAdd.push({
                                 style: 'error',
                                 text: ex.message,

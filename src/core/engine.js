@@ -44,7 +44,6 @@ class Engine {
                     this.reset();
                     return {
                         nodeType: 'variable',
-                        actionHadSideEffect: true,
                         type: 'int',
                         value: undefined,
                     }
@@ -67,7 +66,6 @@ class Engine {
                     let result = this.malloc(argument);
                     return {
                         nodeType: 'variable',
-                        actionHadSideEffect: true,
                         type: 'int',
                         value: result,
                     }
@@ -80,7 +78,6 @@ class Engine {
                     this.free(argument);
                     return {
                         nodeType: 'variable',
-                        actionHadSideEffect: true,
                         type: 'int',
                         value: undefined,
                     }
@@ -99,7 +96,6 @@ class Engine {
                     }
                     return {
                         nodeType: 'variable',
-                        actionHadSideEffect: true,
                         type: 'int',
                         value: undefined,
                     }
@@ -112,7 +108,6 @@ class Engine {
                     this.setMemorySize(argument);
                     return {
                         nodeType: 'variable',
-                        actionHadSideEffect: true,
                         type: 'int',
                         value: undefined,
                     }
@@ -125,7 +120,6 @@ class Engine {
                     this.coalesce();
                     return {
                         nodeType: 'variable',
-                        actionHadSideEffect: true,
                         type: 'int',
                         value: undefined,
                     }
@@ -161,7 +155,6 @@ class Engine {
 
                     return {
                         nodeType: 'variable',
-                        actionHadSideEffect: false,
                         type: 'string',
                         value: val,
                     }
@@ -179,7 +172,6 @@ class Engine {
                         }
                         return {
                             nodeType: 'variable',
-                            actionHadSideEffect: false
                         };
                     }
                     else {
@@ -404,6 +396,7 @@ class Engine {
     // Groups the state into blocks to help
     // with UI structuring
     getState() {
+        console.log(this.state);
         let state = {};
         state.blocks = [];
 
@@ -438,7 +431,6 @@ class Engine {
         if (node === null || node === undefined) {
             return {
                 nodeType: 'variable',
-                actionHadSideEffect: false,
                 value: undefined
             };
         }
@@ -500,7 +492,7 @@ class Engine {
                         value: value
                     }
                 }
-                else if (value.nodeType === 'variable') {
+                else if (node.right.nodeType === 'variable') {
                     value = node.right;
                 }
                 else {
@@ -558,7 +550,53 @@ class Engine {
                 throw new Error('Array logic is not supported yet.');
             }
             case 'cast': {
-                throw new Error('Casting and type checking is not supported yet.');
+                console.log(node);
+
+                let oldValue = this.evaluate(node.statement);
+                let oldType;
+                console.log(oldValue);
+
+                let hadSideEffect;
+
+                switch(oldValue.nodeType) {
+                    case undefined:
+                        oldType = node.statement.literal.nodeType;
+                        break;
+                    case 'variable':
+                        oldType = oldValue.type;
+                        oldValue = oldValue.value;
+                        break;
+                    default:
+                        throw new Error('Whatever you just did is "not supported" (probably a bug).')
+                }
+
+                let validFromTypes = [];
+
+                if (node.type.type.endsWith('*')) {
+                    validFromTypes = ['int*', 'double*', 'string*', 'char*', 'int', 'char', 'void*'];
+                }
+                else {
+                    switch(node.type.type) {
+                        case 'char':
+                        case 'int':
+                            if (oldType === 'double') {
+                                oldValue = parseInt(oldValue)
+                            }
+                        case 'double':
+                            validFromTypes = ['int', 'int*', 'double', 'double*', 'string*', 'char*', 'char', 'void*'];
+                            break;
+                    }
+                }
+
+                if (!validFromTypes.includes(oldType)) {
+                    throw new Error(`Syntax error:\n  Type mismatch: Cannot cast from ${oldType} to ${node.type.type}`);
+                }
+                
+                return {
+                    nodeType: 'variable',
+                    type: node.type.type,
+                    value: oldValue,
+                }
             }
             case 'parenthesis': {
                 return this.evaluate(node.statement);
@@ -646,7 +684,7 @@ class Engine {
                 return {
                     nodeType: 'variable',
                     type: type,
-                    value: result
+                    value: result,
                 }
             }
             case 'type': {
