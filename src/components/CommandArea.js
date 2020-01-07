@@ -6,7 +6,7 @@ import { useSpring, animated } from 'react-spring';
 function CommandArea(props) {
     const [height, setHeight] = useState(200);
 
-    const [{ height: animatedHeight }, setCommandHeight] = useSpring(() => ({ height: 300, config: { mass: 1, tension: 540, friction: 56 } }));
+    const [{ height: animatedHeight }, setCommandHeight] = useSpring(() => ({ height: 500, config: { mass: 1, tension: 540, friction: 56 } }));
 
     if (height !== props.height) {
         setHeight(props.height);

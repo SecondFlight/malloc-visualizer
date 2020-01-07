@@ -536,7 +536,90 @@ class Engine {
                 return this.evaluate(node.statement);
             }
             case 'operator': {
-                throw new Error('Math is not supported yet.');
+                let left;
+                let right;
+
+                if (node.left.nodeType === 'literal') {
+                    left = {
+                        nodeType: 'variable',
+                        type: node.left.literal.nodeType,
+                        value: this.evaluate(node.left)
+                    }
+                }
+                else {
+                    left = this.evaluate(node.left);
+                }
+
+                if (node.right.nodeType === 'literal') {
+                    right = {
+                        nodeType: 'variable',
+                        type: node.right.literal.nodeType,
+                        value: this.evaluate(node.right)
+                    }
+                }
+                else {
+                    right = this.evaluate(node.right);
+                }
+
+                if (left.value !== undefined) {
+                    let type = left.type;
+                    left = left.value;
+                    if (type === 'double') {
+                        left = parseFloat(left);
+                    }
+                    else if (type === 'int') {
+                        left = parseInt(left);
+                    }
+                }
+
+                if (right.value !== undefined) {
+                    let type = right.type;
+                    right = right.value;
+                    if (type === 'double') {
+                        right = parseFloat(right);
+                    }
+                    else if (type === 'int') {
+                        right = parseInt(right);
+                    }
+                }
+
+                if (typeof left !== typeof right) {
+                    throw new Error('Syntax error: Type mismatch.');
+                }
+
+                let result;
+
+                switch(node.operator) {
+                    case('+'):
+                        result = left + right;
+                        break;
+                    case('-'):
+                        result = left - right;
+                        break;
+                    case('*'):
+                        result = left * right;
+                        break;
+                    case('/'):
+                        result = left / right;
+                        break;
+                }
+
+                let type = typeof result;
+
+                if (type === 'number') {
+                    if (result % 1 === 0) {
+                        type = 'double';
+                    }
+                    else {
+                        type = 'int';
+                    }
+                }
+
+                return {
+                    nodeType: 'variable',
+                    type: type,
+                    value: result
+                }
             }
             case 'type': {
                 return node.type;

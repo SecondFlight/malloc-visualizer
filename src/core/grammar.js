@@ -157,7 +157,7 @@
         }
     %}
 
-    operator -> (literal | identifier | functionCall | parenthesis) _ [+\-*\\] _ (literal | identifier | functionCall | parenthesis) {%
+    operator -> (literal | identifier | functionCall | parenthesis) _ [+\-*\/] _ (literal | identifier | functionCall | parenthesis) {%
         function(data) {
             return {
                 nodeType: 'operator',
@@ -384,7 +384,7 @@ export default {
     {"name": "operator$subexpression$2", "symbols": ["identifier"]},
     {"name": "operator$subexpression$2", "symbols": ["functionCall"]},
     {"name": "operator$subexpression$2", "symbols": ["parenthesis"]},
-    {"name": "operator", "symbols": ["operator$subexpression$1", "_", /[+\-*\\]/, "_", "operator$subexpression$2"], "postprocess": 
+    {"name": "operator", "symbols": ["operator$subexpression$1", "_", /[+\-*/]/, "_", "operator$subexpression$2"], "postprocess": 
         function(data) {
             return {
                 nodeType: 'operator',
