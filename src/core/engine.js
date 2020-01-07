@@ -507,6 +507,10 @@ class Engine {
                         else if (this.variables[identifier].type === 'double' && value.type === 'int') {
                             this.variables[identifier].value = value.value;
                         }
+                        else if ((this.variables[identifier].type.endsWith('*') || this.variables[identifier].type === 'int' || this.variables[identifier].type === 'char')
+                                && (value.type.endsWith('*') || value.type === 'int' || value.type === 'char')) {
+                                    this.variables[identifier].value = value.value;
+                                }
                         else {
                             throw new Error(`Syntax error: Type mismatch between ${this.variables[identifier].type} and ${value.type}.`)
                         }
