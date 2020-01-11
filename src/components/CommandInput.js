@@ -8,21 +8,13 @@ function CommandInput(props) {
     const [isFocused, setIsFocused] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
-    // This is bad code and I should probably feel some sort of remorse
-    const [{ marginLeft:  arrowLeftMargin },  setArrowLeftMargin]  = useSpring(() => ({marginLeft: -10}));
-    setArrowLeftMargin({marginLeft: text !== "" || isFocused || isHovered ? 0 : -10});
-    const [{ marginRight: arrowRightMargin }, setArrowRightMargin] = useSpring(() => ({marginRight: 10}));
-    setArrowRightMargin({marginRight: text !== "" || isFocused || isHovered ? 0 : 10});
+    const { transform } = useSpring({
+        transform: `translateX(${text !== '' || isFocused || isHovered ? 0 : -10}px)`
+    });
 
     return (
         <div className="command-input-container">
-            <animated.div
-                className="command-input-arrow"
-                style={{
-                    marginLeft: arrowLeftMargin,
-                    marginRight: arrowRightMargin
-                }}
-            >
+            <animated.div className="command-input-arrow" style={{ transform }}>
                 {'>'}
             </animated.div>
             <div
