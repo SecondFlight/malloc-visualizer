@@ -81,10 +81,14 @@ function CommandInput(props) {
                             setText('');
                             setHistoryIdx(-1)
                         } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                            e.preventDefault();
                             let newHistoryIdx;
                             if (e.key === "ArrowUp") {
                                 if (historyIdx === -1) {
                                     newHistoryIdx = inputHistory.length - 1
+                                    if (inputHistory.length == 0) {
+                                        return;
+                                    }
                                     setHistoryIdx(newHistoryIdx);
                                 } else if (historyIdx === 0) {
                                     return;
