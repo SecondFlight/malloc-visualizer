@@ -6,7 +6,10 @@ import { useSpring, animated } from 'react-spring';
 function CommandArea(props) {
     const [height, setHeight] = useState(200);
 
-    const [{ height: animatedHeight }, setCommandHeight] = useSpring(() => ({ height: 500, config: { mass: 1, tension: 540, friction: 56 } }));
+    const [{ height: animatedHeight }, setCommandHeight] = useSpring(() => ({
+        height: 500,
+        config: { mass: 1, tension: 540, friction: 56 }
+    }));
 
     if (height !== props.height) {
         setHeight(props.height);
@@ -25,9 +28,12 @@ function CommandArea(props) {
     // }
 
     return (
-        <animated.div className="command-area" style={{
-            height: animatedHeight,
-        }}>
+        <animated.div
+            className="command-area"
+            style={{
+                height: animatedHeight
+            }}
+        >
             <CommandHistory history={props.commandHistory} />
             <CommandInput
                 getPrediction={props.getPrediction}

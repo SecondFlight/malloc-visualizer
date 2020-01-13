@@ -11,20 +11,22 @@ function App(props) {
     const [isDragActive, setIsDragActive] = useState(false);
     const [commandHistory, setCommandHistory] = useState([]);
     const [uiState, setUiState] = useState([]);
-    
+
     if (window.engine === undefined) {
         window.engine = new Engine();
         setUiState(window.engine.getState());
     }
 
     if (commandHistory.length === 0) {
-        setCommandHistory([{
-            style: 'info',
-            text: '-> Type help() for usage.',
-        }]);
+        setCommandHistory([
+            {
+                style: 'info',
+                text: '-> Type help() for usage.'
+            }
+        ]);
     }
-    
-    let handleMouseMove = (event) => {
+
+    let handleMouseMove = event => {
         if (!isDragActive) {
             return;
         }
@@ -34,62 +36,76 @@ function App(props) {
         let newHeight = pageHeight - event.pageY;
         if (newHeight < 250) {
             newHeight = 250;
-        }
-        else if (newHeight > pageHeight * 4 / 7) {
-            newHeight = pageHeight * 4 / 7;
+        } else if (newHeight > (pageHeight * 4) / 7) {
+            newHeight = (pageHeight * 4) / 7;
         }
         newHeight -= 3; // Account for spacer height
         setCommandHeight(newHeight);
-    }
+    };
 
     return (
-        <div className="App"
+        <div
+            className="App"
             style={{
-                cursor: isDragActive ? 'ns-resize' : undefined,
+                cursor: isDragActive ? 'ns-resize' : undefined
             }}
             onMouseMove={handleMouseMove}
             onMouseUp={() => {
                 setIsDragActive(false);
             }}
         >
-            <div className="mainContent"
-                style={{flex: 1}}>
-                    <MemoryVisualizer memState={uiState} />
+            <div className="mainContent" style={{ flex: 1 }}>
+                <MemoryVisualizer memState={uiState} />
             </div>
-            <div className="spacer"
-                onMouseDown={() => {setIsDragActive(true)}}
+            <div
+                className="spacer"
+                onMouseDown={() => {
+                    setIsDragActive(true);
+                }}
                 style={{
-                    height: 6,
-                }} />
+                    height: 6
+                }}
+            />
             <CommandArea
-                height={ commandHeight }
+                height={commandHeight}
                 commandHistory={commandHistory}
                 getPrediction={text => {
                     let spaceSplit = text.split(' ');
                     let spaceLastWord = spaceSplit[spaceSplit.length - 1];
-            
+
                     let parenthesisSplit = text.split('(');
                     let parenthesisLastWord = parenthesisSplit[parenthesisSplit.length - 1];
-            
+
                     if (spaceLastWord === '' || parenthesisLastWord === '') {
                         return text;
                     }
-                    
-                    const zeroArgumentFunctions = ['help', 'reset', 'clearConsole', 'coalesce', 'getAllocationMethod', 'freeAll'];
-                    const oneArgumentFunctions = ['malloc', 'free', 'setMemorySize', 'sizeof', 'setAllocationMethod'];
-            
+
+                    const zeroArgumentFunctions = [
+                        'help',
+                        'reset',
+                        'clearConsole',
+                        'coalesce',
+                        'getAllocationMethod',
+                        'freeAll'
+                    ];
+                    const oneArgumentFunctions = [
+                        'malloc',
+                        'free',
+                        'setMemorySize',
+                        'sizeof',
+                        'setAllocationMethod'
+                    ];
+
                     let identifiers = window.engine.getIdentifiers();
                     let functions = window.engine.getFunctions();
 
                     let predictions = oneArgumentFunctions
                         .map(elem => elem + '(')
-                        .concat(
-                            zeroArgumentFunctions.map(elem => elem + '()'))
-                        .concat(
-                            identifiers.filter(identifier => !functions.includes(identifier)));
-            
+                        .concat(zeroArgumentFunctions.map(elem => elem + '()'))
+                        .concat(identifiers.filter(identifier => !functions.includes(identifier)));
+
                     predictions = predictions.sort();
-                    
+
                     for (let prediction of predictions) {
                         if (prediction.startsWith(spaceLastWord)) {
                             spaceSplit[spaceSplit.length - 1] = prediction;
@@ -100,7 +116,7 @@ function App(props) {
                             return parenthesisSplit.join('(');
                         }
                     }
-            
+
                     return text;
                 }}
                 onCommand={command => {
@@ -118,12 +134,13 @@ function App(props) {
 
                     try {
                         parser.feed(command.trim());
-                    }
-                    catch (ex) {
+                    } catch (ex) {
                         syntaxError = true;
                         historyToAdd.push({
                             style: 'error',
-                            text: ex.message.slice(0, ex.message.search('Instead, ')).replace(/line [0-9]+ /, ''),
+                            text: ex.message
+                                .slice(0, ex.message.search('Instead, '))
+                                .replace(/line [0-9]+ /, '')
                         });
                     }
 
@@ -136,16 +153,13 @@ function App(props) {
                             if (result !== undefined && result.toString() !== '') {
                                 if (result.nodeType === 'variable') {
                                     result = result.value;
-                                }
-                                else if (result.nodeType === 'identifier') {
+                                } else if (result.nodeType === 'identifier') {
                                     result = undefined;
-                                }
-                                else if (result.nodeType === 'ui-action') {
+                                } else if (result.nodeType === 'ui-action') {
                                     if (result.action === 'clearConsole') {
                                         setCommandHistory([]);
                                         return;
-                                    }
-                                    else {
+                                    } else {
                                         throw new Error('Internal error: Unsupported UI action.');
                                     }
                                 }
@@ -157,14 +171,13 @@ function App(props) {
 
                             historyToAdd.push({
                                 style: 'info',
-                                text: `-> ${result.toString()}`,
+                                text: `-> ${result.toString()}`
                             });
-                        }
-                        catch (ex) {
+                        } catch (ex) {
                             // throw ex;
                             historyToAdd.push({
                                 style: 'error',
-                                text: ex.message,
+                                text: ex.message
                             });
                         }
                     }
