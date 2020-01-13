@@ -85,7 +85,7 @@ function CommandInput(props) {
                             let newHistoryIdx;
                             if (e.key === 'ArrowUp') {
                                 if (historyIdx === -1) {
-                                    if (inputHistory.length == 0) {
+                                    if (inputHistory.length === 0) {
                                         return;
                                     }
                                     newHistoryIdx = inputHistory.length - 1;

@@ -580,9 +580,11 @@ class Engine {
                             if (oldType === 'double') {
                                 oldValue = parseInt(oldValue)
                             }
+                        // falls through
                         case 'double':
                             validFromTypes = ['int', 'int*', 'double', 'double*', 'string*', 'char*', 'char', 'void*'];
                             break;
+                        // no default
                     }
                 }
 
@@ -666,6 +668,7 @@ class Engine {
                     case '/':
                         result = left / right;
                         break;
+                    // no default
                 }
 
                 let type = typeof result;
