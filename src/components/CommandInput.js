@@ -5,7 +5,7 @@ import { useSpring, animated } from 'react-spring';
 import { uniqueId } from 'lodash';
 
 function CommandInput(props) {
-    const [id] = useState(uniqueId('command-input-'))
+    const [id] = useState(uniqueId('command-input-'));
 
     const [text, setText] = useState('');
     const [inputHistory, setInputHistory] = useState([]);
@@ -24,7 +24,7 @@ function CommandInput(props) {
             const el = document.getElementById(id);
             el.selectionStart = el.selectionEnd = el.value.length;
         }
-    }, [historyIdx, id])
+    }, [historyIdx, id]);
 
     return (
         <div className="command-input-container">
@@ -41,7 +41,7 @@ function CommandInput(props) {
                 }}
             >
                 <div className="code-render">
-                    <span style={{opacity: 0.5}}>
+                    <span style={{ opacity: 0.5 }}>
                         <SyntaxHighlighter language="c" style={atomDark}>
                             {props.getPrediction(text)}
                         </SyntaxHighlighter>
@@ -68,42 +68,42 @@ function CommandInput(props) {
                         setIsFocused(false);
                     }}
                     onKeyDown={e => {
-                        if (e.key === "Tab") {
+                        if (e.key === 'Tab') {
                             e.preventDefault();
                             const prediction = props.getPrediction(text);
                             setText(prediction);
-                        } else if (e.key === "Enter") {
+                        } else if (e.key === 'Enter') {
                             if (text === '') {
                                 return;
                             }
-                            setInputHistory([...inputHistory, text])
+                            setInputHistory([...inputHistory, text]);
                             props.onCommand(text);
                             setText('');
-                            setHistoryIdx(-1)
-                        } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                            setHistoryIdx(-1);
+                        } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                             e.preventDefault();
                             let newHistoryIdx;
-                            if (e.key === "ArrowUp") {
+                            if (e.key === 'ArrowUp') {
                                 if (historyIdx === -1) {
-                                    newHistoryIdx = inputHistory.length - 1
                                     if (inputHistory.length == 0) {
                                         return;
                                     }
+                                    newHistoryIdx = inputHistory.length - 1;
                                     setHistoryIdx(newHistoryIdx);
                                 } else if (historyIdx === 0) {
                                     return;
                                 } else {
-                                    newHistoryIdx = historyIdx - 1
+                                    newHistoryIdx = historyIdx - 1;
                                     setHistoryIdx(newHistoryIdx);
                                 }
-                            } else if (e.key === "ArrowDown") {
+                            } else if (e.key === 'ArrowDown') {
                                 if (historyIdx === -1) {
                                     return;
                                 } else if (historyIdx === inputHistory.length - 1) {
-                                    newHistoryIdx = -1
+                                    newHistoryIdx = -1;
                                     setHistoryIdx(newHistoryIdx);
                                 } else {
-                                    newHistoryIdx = historyIdx + 1
+                                    newHistoryIdx = historyIdx + 1;
                                     setHistoryIdx(newHistoryIdx);
                                 }
                             }
