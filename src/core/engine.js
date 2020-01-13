@@ -9,7 +9,7 @@ class Engine {
         for (let i = 0; i < this.memorySize; i++) {
             this.state.push({
                 isAllocated: false,
-                isReserved: false,
+                isReserved: false
             });
         }
         this.state[0].isReserved = true;
@@ -21,20 +21,22 @@ class Engine {
                 nodeType: 'variable',
                 type: 'function',
                 value: () => {
-                    return '\n- Commands use C-style syntax.\n' +
-                            '- Variable declaration and assignment is supported.\n' + 
-                            '- Intelligent live suggestions are provided. You can use tab to insert a suggestion.\n' + 
-                            '- The following functions are available:\n' + 
-                            '  - malloc(int)\n' + 
-                            '  - free(int)\n' + 
-                            '  - freeAll()\n' + 
-                            '  - coalesce()\n' + 
-                            '  - setMemorySize(int)\n' +
-                            '  - sizeof(any)\n' + 
-                            '  - setAllocationMethod("best fit" | "worst fit" | "first fit")\n' + 
-                            '  - getAllocationMethod()\n' + 
-                            '  - reset()\n' + 
-                            '  - clearConsole()';
+                    return (
+                        '\n- Commands use C-style syntax.\n' +
+                        '- Variable declaration and assignment is supported.\n' +
+                        '- Intelligent live suggestions are provided. You can use tab to insert a suggestion.\n' +
+                        '- The following functions are available:\n' +
+                        '  - malloc(int)\n' +
+                        '  - free(int)\n' +
+                        '  - freeAll()\n' +
+                        '  - coalesce()\n' +
+                        '  - setMemorySize(int)\n' +
+                        '  - sizeof(any)\n' +
+                        '  - setAllocationMethod("best fit" | "worst fit" | "first fit")\n' +
+                        '  - getAllocationMethod()\n' +
+                        '  - reset()\n' +
+                        '  - clearConsole()'
+                    );
                 }
             },
             reset: {
@@ -45,8 +47,8 @@ class Engine {
                     return {
                         nodeType: 'variable',
                         type: 'int',
-                        value: undefined,
-                    }
+                        value: undefined
+                    };
                 }
             },
             clearConsole: {
@@ -55,32 +57,32 @@ class Engine {
                 value: () => {
                     return {
                         nodeType: 'ui-action',
-                        action: 'clearConsole',
-                    }
+                        action: 'clearConsole'
+                    };
                 }
             },
             malloc: {
                 nodeType: 'variable',
                 type: 'function',
-                value: (argument) => {
+                value: argument => {
                     let result = this.malloc(argument);
                     return {
                         nodeType: 'variable',
                         type: 'int',
-                        value: result,
-                    }
+                        value: result
+                    };
                 }
             },
             free: {
                 nodeType: 'variable',
                 type: 'function',
-                value: (argument) => {
+                value: argument => {
                     this.free(argument);
                     return {
                         nodeType: 'variable',
                         type: 'int',
-                        value: undefined,
-                    }
+                        value: undefined
+                    };
                 }
             },
             freeAll: {
@@ -88,7 +90,7 @@ class Engine {
                 type: 'function',
                 value: () => {
                     let i = 0;
-                    while(i !== undefined) {
+                    while (i !== undefined) {
                         if (this.state[i].isAllocated) {
                             this.free(i + 1);
                         }
@@ -97,40 +99,42 @@ class Engine {
                     return {
                         nodeType: 'variable',
                         type: 'int',
-                        value: undefined,
-                    }
+                        value: undefined
+                    };
                 }
             },
             setMemorySize: {
                 nodeType: 'variable',
                 type: 'function',
-                value: (argument) => {
+                value: argument => {
                     this.setMemorySize(argument);
                     return {
                         nodeType: 'variable',
                         type: 'int',
-                        value: undefined,
-                    }
+                        value: undefined
+                    };
                 }
             },
             coalesce: {
                 nodeType: 'variable',
                 type: 'function',
-                value: (argument) => {
+                value: argument => {
                     this.coalesce();
                     return {
                         nodeType: 'variable',
                         type: 'int',
-                        value: undefined,
-                    }
+                        value: undefined
+                    };
                 }
             },
             sizeof: {
                 nodeType: 'variable',
                 type: 'function',
-                value: (argument) => {
+                value: argument => {
                     if (argument === undefined) {
-                        throw new Error('Syntax error ("sizeof()"):\n  Expected 1 argument, got 0.');
+                        throw new Error(
+                            'Syntax error ("sizeof()"):\n  Expected 1 argument, got 0.'
+                        );
                     }
                     let type = argument.type;
                     if (type === undefined) {
@@ -138,7 +142,7 @@ class Engine {
                     }
 
                     let val;
-                    switch(type) {
+                    switch (type) {
                         case 'int':
                             val = 4;
                             break;
@@ -156,26 +160,27 @@ class Engine {
                     return {
                         nodeType: 'variable',
                         type: 'string',
-                        value: val,
-                    }
+                        value: val
+                    };
                 }
             },
             setAllocationMethod: {
                 nodeType: 'variable',
                 type: 'function',
-                value: (method) => {
+                value: method => {
                     if (method === 'best fit' || method === 'worst fit' || method === 'first fit') {
                         this.variables.currentAllocationMethod = {
                             nodeType: 'variable',
                             type: 'string',
                             value: method
-                        }
-                        return {
-                            nodeType: 'variable',
                         };
-                    }
-                    else {
-                        throw new Error('Runtime exception in setAllocationMethod(): Method is invalid.\n  Valid methods are "best fit", "worst fit", and "first fit".');
+                        return {
+                            nodeType: 'variable'
+                        };
+                    } else {
+                        throw new Error(
+                            'Runtime exception in setAllocationMethod(): Method is invalid.\n  Valid methods are "best fit", "worst fit", and "first fit".'
+                        );
                     }
                 }
             },
@@ -215,11 +220,8 @@ class Engine {
     }
 
     getFunctions() {
-        return Object.keys(this.variables)
-                    .filter(elem => this.variables[elem].type === 'function');
+        return Object.keys(this.variables).filter(elem => this.variables[elem].type === 'function');
     }
-
-
 
     malloc(size) {
         if (typeof size === 'string') {
@@ -228,19 +230,20 @@ class Engine {
 
         if (size === 0) {
             throw new Error('Runtime exception in malloc():\n  Size cannot be zero.');
-        }
-        else if (size < 0) {
+        } else if (size < 0) {
             throw new Error('Runtime exception in malloc():\n  Size cannot be negative.');
         }
 
         let startIndex;
 
-        switch(this.variables.currentAllocationMethod.value) {
+        switch (this.variables.currentAllocationMethod.value) {
             case 'first fit': {
                 let i = 0;
                 while (i !== undefined) {
                     if (!this.state[i].isAllocated) {
-                        let cellVal = (this.state[i].cellValue ? this.state[i].cellValue : this.state.length);
+                        let cellVal = this.state[i].cellValue
+                            ? this.state[i].cellValue
+                            : this.state.length;
                         let currentSize = cellVal - i - 1;
                         if (currentSize >= size) {
                             startIndex = i;
@@ -256,7 +259,9 @@ class Engine {
                 let bestStart = 0;
                 let i = 0;
                 while (i !== undefined) {
-                    let cellVal = (this.state[i].cellValue ? this.state[i].cellValue : this.state.length);
+                    let cellVal = this.state[i].cellValue
+                        ? this.state[i].cellValue
+                        : this.state.length;
                     if (!this.state[i].isAllocated && cellVal - i - 1 < bestSize) {
                         bestSize = cellVal - i - 1;
                         bestStart = i;
@@ -273,7 +278,9 @@ class Engine {
                 let bestStart = 0;
                 let i = 0;
                 while (i !== undefined) {
-                    let cellVal = (this.state[i].cellValue ? this.state[i].cellValue : this.state.length);
+                    let cellVal = this.state[i].cellValue
+                        ? this.state[i].cellValue
+                        : this.state.length;
                     if (!this.state[i].isAllocated && cellVal - i - 1 > bestSize) {
                         bestSize = cellVal - i - 1;
                         bestStart = i;
@@ -286,9 +293,11 @@ class Engine {
                 break;
             }
             default:
-                throw new Error('Runtime exception in malloc():\n  Allocation method is invalid.\n  Hint: Don\t set currentAllocationMethod directly; instead, use setAllocationMethod().')
+                throw new Error(
+                    'Runtime exception in malloc():\n  Allocation method is invalid.\n  Hint: Don\t set currentAllocationMethod directly; instead, use setAllocationMethod().'
+                );
         }
-        
+
         if (startIndex === undefined) {
             throw new Error('Runtime exception in malloc(): Out of memory.');
         }
@@ -304,7 +313,10 @@ class Engine {
             this.state[startIndex].cellValue = undefined;
         }
 
-        if (this.state[startIndex + size + 1] !== undefined && !this.state[startIndex + size + 1].isReserved) {
+        if (
+            this.state[startIndex + size + 1] !== undefined &&
+            !this.state[startIndex + size + 1].isReserved
+        ) {
             this.state[startIndex + size + 1].isReserved = true;
             this.state[startIndex + size + 1].cellValue = oldCellValue;
         }
@@ -315,11 +327,12 @@ class Engine {
     free(ptr) {
         if (this.state[ptr - 1] === undefined) {
             throw new Error('Runtime exception in free():\n  Memory pointer is out of bounds.');
+        } else if (!this.state[ptr - 1].isReserved || !this.state[ptr - 1].isAllocated) {
+            throw new Error(
+                'Runtime exception in free():\n  Memory pointer does not point to the start of an allocated chunk.'
+            );
         }
-        else if (!this.state[ptr - 1].isReserved || !this.state[ptr - 1].isAllocated) {
-            throw new Error('Runtime exception in free():\n  Memory pointer does not point to the start of an allocated chunk.');
-        }
-        
+
         this.state[ptr - 1].isAllocated = false;
 
         for (let i = ptr; i < this.state.length; i++) {
@@ -332,29 +345,28 @@ class Engine {
 
     setMemorySize(size) {
         if (size < 1) {
-            throw new Error('Runtime exception in setMemorySize(): Memory size must be at least 1.');
+            throw new Error(
+                'Runtime exception in setMemorySize(): Memory size must be at least 1.'
+            );
         }
 
         if (size === this.memorySize) {
             return;
-        }
-        else if (size > this.memorySize) {
+        } else if (size > this.memorySize) {
             for (let i = 0; i < size - this.memorySize; i++) {
                 if (i === 0 && this.state[this.memorySize - 1].isAllocated) {
                     this.state.push({
                         isAllocated: false,
-                        isReserved: true,
+                        isReserved: true
                     });
-                }
-                else {
+                } else {
                     this.state.push({
                         isAllocated: false,
-                        isReserved: false,
+                        isReserved: false
                     });
                 }
             }
-        }
-        else {
+        } else {
             this.state = this.state.slice(0, size);
 
             for (let i = this.state.size - 1; i >= 0; i--) {
@@ -375,13 +387,18 @@ class Engine {
                 break;
             }
 
-            if (this.state[ptr].cellValue === undefined ||
+            if (
+                this.state[ptr].cellValue === undefined ||
                 this.state[ptr].cellValue < 0 ||
-                this.state[ptr].cellValue >= this.state.length) {
+                this.state[ptr].cellValue >= this.state.length
+            ) {
                 break;
             }
 
-            if (!this.state[ptr].isAllocated && !this.state[this.state[ptr].cellValue].isAllocated) {
+            if (
+                !this.state[ptr].isAllocated &&
+                !this.state[this.state[ptr].cellValue].isAllocated
+            ) {
                 let cellValuePtr = this.state[ptr].cellValue;
                 this.state[ptr].cellValue = this.state[cellValuePtr].cellValue;
                 this.state[cellValuePtr].cellValue = undefined;
@@ -407,21 +424,19 @@ class Engine {
                     state.blocks.push(block);
                 }
 
-                block = {cells: []};
+                block = { cells: [] };
                 block.isAllocated = this.state[i].isAllocated;
             }
 
-            block.cells.push({...this.state[i], index: i});
+            block.cells.push({ ...this.state[i], index: i });
 
-            createNewBlock = (i + 1 < this.state.length) && (this.state[i + 1].isReserved);
+            createNewBlock = i + 1 < this.state.length && this.state[i + 1].isReserved;
         }
-        
+
         state.blocks.push(block);
 
         return state;
     }
-
-
 
     // Recursively evaluates a node in the AST
     // and returns the result, along with
@@ -436,12 +451,12 @@ class Engine {
 
         if (Array.isArray(node)) {
             if (node.length === 0) {
-                throw new Error('Parsing error: Command is incomplete.\n  Did you forget a \')\'?');
+                throw new Error("Parsing error: Command is incomplete.\n  Did you forget a ')'?");
             }
-            return (this.evaluate(node[0]))
+            return this.evaluate(node[0]);
         }
 
-        switch(node.nodeType) {
+        switch (node.nodeType) {
             case 'literal': {
                 return this.evaluate(node.literal);
             }
@@ -471,10 +486,9 @@ class Engine {
                 if (node.left.nodeType === 'identifier') {
                     identifier = node.left.identifier;
                     if (this.variables[identifier] === undefined) {
-                        throw new Error(`Reference error: '${identifier}' is not defined.`)
+                        throw new Error(`Reference error: '${identifier}' is not defined.`);
                     }
-                }
-                else if (node.left.nodeType === 'declaration') {
+                } else if (node.left.nodeType === 'declaration') {
                     identifier = this.evaluate(node.left).identifier;
                 }
 
@@ -489,12 +503,10 @@ class Engine {
                         nodeType: 'variable',
                         type: type,
                         value: value
-                    }
-                }
-                else if (node.right.nodeType === 'variable') {
+                    };
+                } else if (node.right.nodeType === 'variable') {
                     value = node.right;
-                }
-                else {
+                } else {
                     value = this.evaluate(node.right);
                 }
 
@@ -502,22 +514,29 @@ class Engine {
                     if (this.variables[identifier].type !== value.type) {
                         if (this.variables[identifier].type === 'int' && value.type === 'double') {
                             this.variables[identifier].value = parseInt(value.value);
-                        }
-                        else if (this.variables[identifier].type === 'double' && value.type === 'int') {
+                        } else if (
+                            this.variables[identifier].type === 'double' &&
+                            value.type === 'int'
+                        ) {
                             this.variables[identifier].value = value.value;
-                        }
-                        else if ((this.variables[identifier].type.endsWith('*') || this.variables[identifier].type === 'int' || this.variables[identifier].type === 'char')
-                                && (value.type.endsWith('*') || value.type === 'int' || value.type === 'char')) {
-                                    this.variables[identifier].value = value.value;
-                                }
-                        else {
-                            throw new Error(`Syntax error: Type mismatch between ${this.variables[identifier].type} and ${value.type}.`)
+                        } else if (
+                            (this.variables[identifier].type.endsWith('*') ||
+                                this.variables[identifier].type === 'int' ||
+                                this.variables[identifier].type === 'char') &&
+                            (value.type.endsWith('*') ||
+                                value.type === 'int' ||
+                                value.type === 'char')
+                        ) {
+                            this.variables[identifier].value = value.value;
+                        } else {
+                            throw new Error(
+                                `Syntax error: Type mismatch between ${this.variables[identifier].type} and ${value.type}.`
+                            );
                         }
                     }
                     this.variables[identifier].value = value.value;
-                }
-                else {
-                    this.variables[identifier].type = 'int';  // um,
+                } else {
+                    this.variables[identifier].type = 'int'; // um,
                     this.variables[identifier].value = value;
                 }
 
@@ -526,12 +545,16 @@ class Engine {
             case 'functionCall': {
                 let func = this.evaluate(node.functionName);
                 if (func.type !== 'function') {
-                    throw new Error(`Type error: '${node.functionName.identifier}' is not a function.`);
+                    throw new Error(
+                        `Type error: '${node.functionName.identifier}' is not a function.`
+                    );
                 }
 
                 let arg = node.argument ? this.evaluate(node.argument) : undefined;
 
-                return func.value(arg !== undefined && arg.nodeType === 'variable' ? arg.value : arg);
+                return func.value(
+                    arg !== undefined && arg.nodeType === 'variable' ? arg.value : arg
+                );
             }
             case 'declaration': {
                 return this.evaluate(node.declaration);
@@ -540,13 +563,15 @@ class Engine {
                 let type = this.evaluate(node.type);
                 let identifier = node.identifier.identifier;
                 if (this.variables[identifier] !== undefined) {
-                    throw new Error(`Syntax error: Identifier '${identifier}' has already been declared.`);
+                    throw new Error(
+                        `Syntax error: Identifier '${identifier}' has already been declared.`
+                    );
                 }
                 this.variables[identifier] = {
                     nodeType: 'variable',
                     type: type,
-                    value: undefined,
-                }
+                    value: undefined
+                };
                 return node.identifier;
             }
             case 'arrayDeclaration': {
@@ -556,7 +581,7 @@ class Engine {
                 let oldValue = this.evaluate(node.statement);
                 let oldType;
 
-                switch(oldValue.nodeType) {
+                switch (oldValue.nodeType) {
                     case undefined:
                         oldType = node.statement.literal.nodeType;
                         break;
@@ -565,36 +590,58 @@ class Engine {
                         oldValue = oldValue.value;
                         break;
                     default:
-                        throw new Error('Whatever you just did is "not supported" (probably a bug).')
+                        throw new Error(
+                            'Whatever you just did is "not supported" (probably a bug).'
+                        );
                 }
 
                 let validFromTypes = [];
 
                 if (node.type.type.endsWith('*')) {
-                    validFromTypes = ['int*', 'double*', 'string*', 'char*', 'int', 'char', 'void*'];
-                }
-                else {
-                    switch(node.type.type) {
+                    validFromTypes = [
+                        'int*',
+                        'double*',
+                        'string*',
+                        'char*',
+                        'int',
+                        'char',
+                        'void*'
+                    ];
+                } else {
+                    switch (node.type.type) {
                         case 'char':
                         case 'int':
                             if (oldType === 'double') {
-                                oldValue = parseInt(oldValue)
+                                oldValue = parseInt(oldValue);
                             }
+                        // falls through
                         case 'double':
-                            validFromTypes = ['int', 'int*', 'double', 'double*', 'string*', 'char*', 'char', 'void*'];
+                            validFromTypes = [
+                                'int',
+                                'int*',
+                                'double',
+                                'double*',
+                                'string*',
+                                'char*',
+                                'char',
+                                'void*'
+                            ];
                             break;
+                        // no default
                     }
                 }
 
                 if (!validFromTypes.includes(oldType)) {
-                    throw new Error(`Syntax error:\n  Type mismatch: Cannot cast from ${oldType} to ${node.type.type}`);
+                    throw new Error(
+                        `Syntax error:\n  Type mismatch: Cannot cast from ${oldType} to ${node.type.type}`
+                    );
                 }
-                
+
                 return {
                     nodeType: 'variable',
                     type: node.type.type,
-                    value: oldValue,
-                }
+                    value: oldValue
+                };
             }
             case 'parenthesis': {
                 return this.evaluate(node.statement);
@@ -608,9 +655,8 @@ class Engine {
                         nodeType: 'variable',
                         type: node.left.literal.nodeType,
                         value: this.evaluate(node.left)
-                    }
-                }
-                else {
+                    };
+                } else {
                     left = this.evaluate(node.left);
                 }
 
@@ -619,9 +665,8 @@ class Engine {
                         nodeType: 'variable',
                         type: node.right.literal.nodeType,
                         value: this.evaluate(node.right)
-                    }
-                }
-                else {
+                    };
+                } else {
                     right = this.evaluate(node.right);
                 }
 
@@ -630,8 +675,7 @@ class Engine {
                     left = left.value;
                     if (type === 'double') {
                         left = parseFloat(left);
-                    }
-                    else if (type === 'int') {
+                    } else if (type === 'int') {
                         left = parseInt(left);
                     }
                 }
@@ -641,8 +685,7 @@ class Engine {
                     right = right.value;
                     if (type === 'double') {
                         right = parseFloat(right);
-                    }
-                    else if (type === 'int') {
+                    } else if (type === 'int') {
                         right = parseInt(right);
                     }
                 }
@@ -653,7 +696,7 @@ class Engine {
 
                 let result;
 
-                switch(node.operator) {
+                switch (node.operator) {
                     case '+':
                         result = left + right;
                         break;
@@ -666,6 +709,7 @@ class Engine {
                     case '/':
                         result = left / right;
                         break;
+                    // no default
                 }
 
                 let type = typeof result;
@@ -673,8 +717,7 @@ class Engine {
                 if (type === 'number') {
                     if (result % 1 === 0) {
                         type = 'double';
-                    }
-                    else {
+                    } else {
                         type = 'int';
                     }
                 }
@@ -682,8 +725,8 @@ class Engine {
                 return {
                     nodeType: 'variable',
                     type: type,
-                    value: result,
-                }
+                    value: result
+                };
             }
             case 'type': {
                 return node.type;
@@ -692,7 +735,7 @@ class Engine {
                 throw new Error('Array logic is not supported yet.');
             }
             default: {
-                throw new Error('AST evaluator: Node type was not recognized.\n  This is a bug.')
+                throw new Error('AST evaluator: Node type was not recognized.\n  This is a bug.');
             }
         }
     }
