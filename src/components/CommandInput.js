@@ -20,8 +20,10 @@ function CommandInput(props) {
     });
 
     useEffect(() => {
-        const el = document.getElementById(id);
-        el.selectionStart = el.selectionEnd = el.value.length;
+        if (historyIdx !== -1) {
+            const el = document.getElementById(id);
+            el.selectionStart = el.selectionEnd = el.value.length;
+        }
     }, [historyIdx, id])
 
     return (
