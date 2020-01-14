@@ -178,13 +178,15 @@ html {
 }
 
 .cell-container:first-child {
-  border-radius: 5px 0 0 5px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
   padding-left: 10px;
 }
 
 .cell-container:last-child {
   margin-right: 20px;
-  border-radius: 0 5px 5px 0;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
   border-right: 1px solid #ffffff08;
 }
 
